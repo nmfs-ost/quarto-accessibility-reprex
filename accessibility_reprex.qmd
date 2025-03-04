@@ -143,5 +143,7 @@ Months on ye at by esteem desire warmth former. Sure that that way gave any fond
 #| warning: false 
 #| eval: true 
 #| fig-alt: 'this describes the trend.'
-satf::plot_spawning_biomass(dat = output, ref_line = 'target', end_year = end_yr)
+stockplotr::plot_spawning_biomass(dat = output, ref_line = 'target', end_year = end_yr)
 ``` 
+
+
