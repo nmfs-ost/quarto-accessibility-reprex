@@ -1,2 +1,2 @@
 label,type,caption,alt_text
-spawn_bio,figure,Model-estimated spawning stock biomass (SSB) time series. The horizontal dashed line represents the spawning stock biomass associated with the biomass limit reference point at ssb.ref.pt ssb.ref.pt.units.,"Line graph showing model-estimated spawning stock biomass. The x axis shows the year, which spans from 1872 to ssb.end.year . The y axis shows model-estimated spawning stock biomass in ssb.units, which spans from 6.63236e+11 to 3.17034e+12."
+landings,figure,Historical landings by fleet.,"Cumulative area plot showing historical landings. The x axis shows the year, which spans from 1876 to 2022 . The y axis shows landings in mt, which spans from 0 to 4280.45."

@@ -2,7 +2,7 @@
 
 #### Add Alt text ####################
 
-#' Add alternative text into latex
+##' Add alternative text into latex
 #'
 #' @param x .tex file containing report. Typically produced after initially
 #' rendering the skeleton made from create_template.
@@ -14,7 +14,7 @@
 #' function. There is no need to include ".tex" in the name. Defaults to current
 #' name and overwrites the current tex file.
 #' @param alttext_csv_dir Directory for the csv file containing alternative
-#' text and captions generated when running satf::exp_all_figs_tables
+#' text and captions generated when running stockplotr::exp_all_figs_tables
 #'
 #' @return This function was made to help add in
 #' alternative text to latex documents generated from
@@ -22,7 +22,7 @@
 #' add alternative text to PDF documents, so this function
 #' was developed as a work around. The addition of alternative
 #' text needs to be found in either the rda files produced from
-#' satf::exp_all_figs_tables or in the captions_alt_text.csv also produced from
+#' stockplotr::exp_all_figs_tables or in the captions_alt_text.csv also produced from
 #' the same function. Users not using this format should create a csv file with
 #' columns containing "label" and "alt_text".
 #'
@@ -125,26 +125,28 @@ add_alttext <- function(
   # Add alt text to custom images
   # read in alt text csv file to match with labels
   alttext <- utils::read.csv(file.path(alttext_csv_dir, "captions_alt_text.csv"))
-  for (i in addl_figs) {
-    # Find line label
-    line <- tex_file[i]
-    # Find line following target to extract label
-    matches <- grep("\\label", tex_file)
-    label_line <- matches[matches > i][1]
-    line_label <- stringr::str_extract(tex_file[label_line], "\\\\label\\{([^}]*)\\}") |>
-      stringr::str_remove_all("^\\\\label\\{|\\}$")
-    # Match label name to label in csv and extract alttext
-    alttext_i <- alttext |>
-      dplyr::filter(label == line_label) |>
-      dplyr::pull(alt_text)
-    if (is.na(label_line)) {
-      alttext_i <- ""
-      warning(glue::glue(
-        "No alternative text found for {line_label}."
-      ))
+  if (length(addl_figs) > 0) {
+    for (i in addl_figs) {
+      # Find line label
+      line <- tex_file[i]
+      # Find line following target to extract label
+      matches <- grep("\\label", tex_file)
+      label_line <- matches[matches > i][1]
+      line_label <- stringr::str_extract(tex_file[label_line], "\\\\label\\{([^}]*)\\}") |>
+        stringr::str_remove_all("^\\\\label\\{|\\}$")
+      # Match label name to label in csv and extract alttext
+      alttext_i <- alttext |>
+        dplyr::filter(label == line_label) |>
+        dplyr::pull(alt_text)
+      if (is.na(label_line)) {
+        alttext_i <- ""
+        warning(glue::glue(
+          "No alternative text found for {line_label}."
+        ))
+      }
+      # Add selected alttext onto end of the line
+      tex_file[i] <- paste(tex_file[i], "{", alttext_i, "}", sep = "")
     }
-    # Add selected alttext onto end of the line
-    tex_file[i] <- paste(tex_file[i], "{", alttext_i, "}", sep = "")
   }
   
   # Insert alt text for figures
@@ -161,7 +163,7 @@ add_alttext <- function(
     # figures in tex file
     if (grepl("_", rda_name)) rda_name <- stringr::str_replace(rda_name, "_", "-")
     # convert to name in tex file to find where the line is located
-    tex_name <- glue::glue("fig-{rda_name}-plot-1.pdf")
+    tex_name <- glue::glue("fig-{rda_name}-1.pdf")
     # extract alt. text with figure
     alt_text <- rda$alt_text
     # names(alt_text) <- tex_name
