@@ -31,3 +31,10 @@ add_tagging("accessibility_reprex.tex", compile = FALSE)
 
 # Compile LaTeX file
 # tinytex::lualatex()
+
+# Tinkering with add_alttext
+x = "accessibility_reprex.tex"
+dir = getwd()
+rda_dir = getwd()
+alttext_csv_dir = getwd()
+

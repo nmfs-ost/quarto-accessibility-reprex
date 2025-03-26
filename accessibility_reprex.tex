@@ -223,7 +223,7 @@
 \makeatother
 \subtitle{Application to U.S. Stock Assessment Reports}
 \author{Samantha Schiano}
-\date{2025-03-10}
+\date{2025-03-26}
 
 \begin{document}
   \begin{titlepage}
@@ -519,11 +519,23 @@ Ambassador Place NE, Suite 101, Portland, OR 97220.''} Journal Article.
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio]{accessibility_reprex_files/figure-pdf/fig-landings-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio, alt={"Cumulative area plot showing historical landings. The x axis shows the year which spans from 1876 to 2022. The y axis shows landings in mt which spans from 0 to 4280.45."}]{accessibility_reprex_files/figure-pdf/fig-landings-1.png}}
 
 }
 
 \caption{\label{fig-landings}Historical landings by fleet.}
+
+\end{figure}%
+
+\begin{figure}
+
+\centering{
+
+\pandocbounded{\includegraphics[alt={"A good alternative text for our example image"}]{figures/example-external-img.png}}
+
+}
+
+\caption{\label{fig-extra}Caption for external figure}
 
 \end{figure}%
 

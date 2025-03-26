@@ -24,47 +24,12 @@
 #' text needs to be found in either the rda files produced from
 #' stockplotr::exp_all_figs_tables or in the captions_alt_text.csv also produced from
 #' the same function. Users not using this format should create a csv file with
-#' columns containing "label" and "alt_text".
+#' columns containing "label" and "alt_text". For adding alternative text from 
+#' images reference in an html format, please create a label for it using the 
+#' following format {#fig-<label>}. The label name in the alt text csv file
+#' should state "fig-<label>".
 #'
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' create_template(
-#'   new_template = TRUE,
-#'   format = "pdf",
-#'   office = "NWFSC",
-#'   region = "U.S. West Coast",
-#'   species = "Dover sole",
-#'   spp_latin = "Microstomus pacificus",
-#'   year = 2010,
-#'   author = c("John Snow", "Danny Phantom", "Patrick Star"),
-#'   include_affiliation = TRUE,
-#'   convert_output = TRUE,
-#'   resdir = "C:/Users/Documents/Example_Files",
-#'   model_results = "Report.sso",
-#'   model = "SS3",
-#'   new_section = "an_additional_section",
-#'   section_location = "after-introduction",
-#'   rda_dir = getwd()
-#' )
-#'
-#' path <- getwd()
-#'
-#' quarto::quarto_render(file.path(path, "report", "SAR_USWC_Dover_sole_skeleton.qmd"))
-#'
-#' withr::with_dir(
-#'   file.path(path, "report"),
-#'   add_alttext(
-#'     x = "SAR_USWC_Dover_sole_skeleton.tex",
-#'     dir = getwd(),
-#'     alttext_csv_dir = getwd(),
-#'     rda_dir = path,
-#'     compile = TRUE,
-#'     rename = "SAR_Dover_sole_tagged"
-#'   )
-#' )
-#' }
 #'
 add_alttext <- function(
     x = list.files(getwd())[grep("skeleton.tex", list.files(getwd()))],
@@ -87,9 +52,14 @@ add_alttext <- function(
   
   # Identify lines with figures
   # this approach allows us to not mistake the replacement for other figures
+  # For render to pdf
   fig_lines <- grep("fig-([a-z]+|[a-z]+_[a-z]+)-1.pdf", tex_file) # -plot
   # Find images from previous naming conventions after quarto render
+  # TODO: this might need to be take out in the future - aka not needed
   fig_lines <- c(fig_lines, grep("fig-([a-z]+|[a-z]+_[a-z]+)-plot-1.pdf", tex_file))
+  # for html render or external images
+  fig_lines <- c(fig_lines,
+                  grep("fig-([a-z]+|[a-z]+_[a-z]+)-1.png", tex_file))
   
   # TODO:
   # create check to see if there are any instances where the suffix is not plot-1
@@ -104,24 +74,28 @@ add_alttext <- function(
   # Create alternative options for render to html or docx
   
   # Replace pandocbounded with pdftooltip so alt text can be added
-  tex_file[fig_lines] <- lapply(
-    tex_file[fig_lines],
-    function(line) {
-      gsub("\\pandocbounded", "\\pdftooltip", line)
-    }
-  )
+  # No longer using tooltip - pandocbounded will work fine with the next adjustments
+  # tex_file[fig_lines] <- lapply(
+  #   tex_file[fig_lines],
+  #   function(line) {
+  #     gsub("\\pandocbounded", "\\pdftooltip", line)
+  #   }
+  # )
   
   # Check instance of pandocbounded that haven't been replaced
   # these are the additional images
-  addl_figs <- grep("\\pandocbounded", tex_file)[-1]
+  addl_figs <- setdiff(grep("\\pandocbounded", tex_file)[-1], fig_lines)
+  
   # ignore line 82 - this is the department of commerce logo
   # replace as above
-  tex_file[addl_figs] <- lapply(
-    tex_file[addl_figs],
-    function(line) {
-      gsub("\\pandocbounded", "\\pdftooltip", line)
-    }
-  )
+  # Again don't want to replace pandocbounded anymore
+  # tex_file[addl_figs] <- lapply(
+  #   tex_file[addl_figs],
+  #   function(line) {
+  #     gsub("\\pandocbounded", "\\pdftooltip", line)
+  #   }
+  # )
+  
   # Add alt text to custom images
   # read in alt text csv file to match with labels
   alttext <- utils::read.csv(file.path(alttext_csv_dir, "captions_alt_text.csv"))
@@ -145,7 +119,13 @@ add_alttext <- function(
         ))
       }
       # Add selected alttext onto end of the line
-      tex_file[i] <- paste(tex_file[i], "{", alttext_i, "}", sep = "")
+      tex_file[i] <- gsub(
+        "keepaspectratio",
+        # TODO: check that this works
+        glue::glue("keepaspectratio, alt='{alttext_i}'"),
+        tex_file[i]
+      )
+      # tex_file[i] <- paste(tex_file[i], "{", alttext_i, "}", sep = "")
     }
   }
   
@@ -163,7 +143,7 @@ add_alttext <- function(
     # figures in tex file
     if (grepl("_", rda_name)) rda_name <- stringr::str_replace(rda_name, "_", "-")
     # convert to name in tex file to find where the line is located
-    tex_name <- glue::glue("fig-{rda_name}-1.pdf")
+    tex_name <- glue::glue("fig-{rda_name}-1.png") # replacing pdf - img ext are changed in next step
     # extract alt. text with figure
     alt_text <- rda$alt_text
     # names(alt_text) <- tex_name
@@ -173,6 +153,21 @@ add_alttext <- function(
     # call alt text using list[[i]]
     # remove rda file to declutter
     rm(rda)
+  }
+  
+  # Change extension and copy all images to same folder
+  # extract all files from render folder
+  imgs <- list.files(file.path(dir, gsub(".tex", "_files/figure-pdf", x)))
+  img.ext <- gsub(".pdf", ".png", imgs)
+  # change pdf to png extension in imgs
+  for (i in seq_along(imgs)) {
+    file.rename(file.path(dir, gsub(".tex", "_files/figure-pdf", x), imgs[i]),
+                file.path(dir, gsub(".tex", "_files/figure-pdf", x), img.ext[i]))
+  }
+  
+  # Find and replace all mentions of the above images in the tex file with the.png extention name
+  for (i in seq_along(imgs)) {
+    tex_file <- gsub(imgs[i], img.ext[i], tex_file)
   }
   
   # Find where figure is located and append the alt. text
@@ -189,11 +184,14 @@ add_alttext <- function(
       warning(glue::glue("Improper line for appendment: \n Skipped adding alternative text for {names(alt_text_list[i])}"))
       next
     }
-    tex_file[fig_line] <- paste(tex_file[fig_line], "{", alt_text_list[[i]], "}", sep = "")
+    tex_file[fig_line] <- gsub(
+      "keepaspectratio",
+      glue::glue("keepaspectratio, alt='{alt_text_list[[i]]}'"),
+      tex_file[fig_line]
+    )
+    # tex_file[fig_line] <- paste(tex_file[fig_line], "{", alt_text_list[[i]], "}", sep = "")
     # tex_file[fig_line] <- strwrap(paste(tex_file[fig_line], "{", alt_text_list[[1]], "}", sep = ""))  # remove strwrap if does not render
   }
-  # tex_file[430] <- paste(tex_file[fig_line], "{", alt_text_list[[1]], "}", sep = "")
-  # strwrap(paste(tex_file[fig_line], "{", alt_text_list[[1]], "}", sep = ""), width = 80)
   
   # Checks
   # add check if there are more plots that did not have alt text added

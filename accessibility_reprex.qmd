@@ -31,6 +31,14 @@ format:
       - bottom=1in
       - right=1in
       - left=1in
+    default-image-extension: .png
+  html:  
+      theme: [cosmo, support_files/theme.scss] 
+      mainfont: 'cambria' 
+      number-sections: true 
+      toc: true 
+      toc-depth: 3 
+      citations-hover: true 
 params:
    office: "NWFSC"
    species: "Petrale sole"
@@ -181,5 +189,8 @@ if (file.exists(file.path(rda_dir, 'landings_figure.rda'))){
 #| fig-alt: !expr if(eval_landings) landings_alt_text
 landings_plot
 ``` 
+
+
+![Caption for external figure](figures/example-external-img.png){#fig-extra}
 
 
