@@ -38,3 +38,11 @@ dir = getwd()
 rda_dir = getwd()
 alttext_csv_dir = getwd()
 
+# test convert pdf to png then load in with alt text
+img_file <- file.path(getwd(), "accessibility_reprex_files", "figure-pdf", "fig-landings-1.pdf")
+pdftools::pdf_convert(
+  img_file, 
+  format = "png", 
+  dpi = 300,
+  filenames = file.path(getwd(), "accessibility_reprex_files", "figure-pdf", "fig-landings-1.png")
+)

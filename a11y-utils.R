@@ -121,8 +121,7 @@ add_alttext <- function(
       # Add selected alttext onto end of the line
       tex_file[i] <- gsub(
         "keepaspectratio",
-        # TODO: check that this works
-        glue::glue("keepaspectratio, alt='{alttext_i}'"),
+        paste0("keepaspectratio,alt={'", alttext_i,"'}"),
         tex_file[i]
       )
       # tex_file[i] <- paste(tex_file[i], "{", alttext_i, "}", sep = "")
@@ -155,22 +154,28 @@ add_alttext <- function(
     rm(rda)
   }
   
-  # Change extension and copy all images to same folder
+  # Convert all pdf images to png if render was to pdf
   # extract all files from render folder
-  imgs <- list.files(file.path(dir, gsub(".tex", "_files/figure-pdf", x)))
-  img.ext <- gsub(".pdf", ".png", imgs)
-  # change pdf to png extension in imgs
-  for (i in seq_along(imgs)) {
-    file.rename(file.path(dir, gsub(".tex", "_files/figure-pdf", x), imgs[i]),
-                file.path(dir, gsub(".tex", "_files/figure-pdf", x), img.ext[i]))
-  }
-  
-  # Find and replace all mentions of the above images in the tex file with the.png extention name
-  for (i in seq_along(imgs)) {
-    tex_file <- gsub(imgs[i], img.ext[i], tex_file)
+  # TODO: add check if this has already been done then move to next img in the folder
+  img_path <- file.path(dir, gsub(".tex", "_files/figure-pdf", x))
+  if (dir.exists(img_path)) {
+    imgs <- list.files(img_path)
+    for (i in length(imgs)) {
+      img_file <- imgs[i]
+      img_file_con <- gsub(".pdf", ".png", img_file)
+      pdftools::pdf_convert(
+        file.path(img_path, img_file), 
+        format = "png", 
+        dpi = 300,
+        filenames = file.path(img_path, img_file_con)
+      ) |> suppressWarnings()
+      # Replace names in the tex file
+      tex_file <- gsub(img_file, img_file_con, tex_file)
+    }
   }
   
   # Find where figure is located and append the alt. text
+  # TODO: make checks so only adds to images that don't already have alt text included in them
   for (i in seq_along(alt_text_list)) {
     fig_line <- grep(names(alt_text_list[i]), tex_file)
     # Check that line we are adding the alt text to is for correct fig
@@ -186,7 +191,7 @@ add_alttext <- function(
     }
     tex_file[fig_line] <- gsub(
       "keepaspectratio",
-      glue::glue("keepaspectratio, alt='{alt_text_list[[i]]}'"),
+      paste0("keepaspectratio,alt={'",alt_text_list[[i]],"'}"),
       tex_file[fig_line]
     )
     # tex_file[fig_line] <- paste(tex_file[fig_line], "{", alt_text_list[[i]], "}", sep = "")

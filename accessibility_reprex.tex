@@ -1,3 +1,4 @@
+\input{accessibility.tex}
 % Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
@@ -223,7 +224,7 @@
 \makeatother
 \subtitle{Application to U.S. Stock Assessment Reports}
 \author{Samantha Schiano}
-\date{2025-03-26}
+\date{2025-03-28}
 
 \begin{document}
   \begin{titlepage}
@@ -249,7 +250,7 @@
   \vspace{1\baselineskip}
 
   %%%%%% Cover image
-  \pdftooltip{\includegraphics{partials/Petrale\_sole.png}}{An illustration of petrale sole}
+  \includegraphics[alt=An illustration of petrale sole]{partials/Petrale\_sole.png}
   %\includegraphics[alt={An illustration of petrale sole},width=10cm]{partials/Petrale\_sole.png}
 
   \vspace{1\baselineskip}
@@ -306,7 +307,7 @@
 
 \renewcommand*\contentsname{Table of contents}
 {
-\hypersetup{linkcolor=}
+\hypersetup{linkcolor=.}
 \setcounter{tocdepth}{3}
 \tableofcontents
 }
@@ -519,7 +520,7 @@ Ambassador Place NE, Suite 101, Portland, OR 97220.''} Journal Article.
 
 \centering{
 
-\pandocbounded{\includegraphics[keepaspectratio, alt={"Cumulative area plot showing historical landings. The x axis shows the year which spans from 1876 to 2022. The y axis shows landings in mt which spans from 0 to 4280.45."}]{accessibility_reprex_files/figure-pdf/fig-landings-1.png}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={'Cumulative area plot showing historical landings. The x axis shows the year, which spans from 1876 to 2022 . The y axis shows landings in mt, which spans from 0 to 4280.45.'}]{accessibility_reprex_files/figure-pdf/fig-landings-1.png}}
 
 }
 
@@ -531,7 +532,7 @@ Ambassador Place NE, Suite 101, Portland, OR 97220.''} Journal Article.
 
 \centering{
 
-\pandocbounded{\includegraphics[alt={"A good alternative text for our example image"}]{figures/example-external-img.png}}
+\pandocbounded{\includegraphics[keepaspectratio,alt={'A good alternative text for our example image'}]{figures/example-external-img.png}}
 
 }
 
